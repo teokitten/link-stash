@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Stash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0e1518;
+      color: #c4d4dc;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    header .ti { font-size: 28px; color: #c8a86a; }
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #8ab8c8;
+      letter-spacing: -0.2px;
+    }
+
+    /* ── Add Panel ── */
+    .add-panel {
+      background: #141c20;
+      border: 1px solid rgba(200,170,100,0.30);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .add-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    /* ── Inputs ── */
+    input[type="url"],
+    input[type="text"],
+    input[type="search"],
+    textarea {
+      background: #141c20;
+      border: 1px solid rgba(200,170,100,0.22);
+      border-radius: 10px;
+      color: #d0dce4;
+      font-family: inherit;
+      font-size: 15px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    input:focus, textarea:focus {
+      border-color: rgba(200,170,100,0.60);
+      box-shadow: 0 0 0 3px rgba(200,170,100,0.12);
+    }
+    input::placeholder, textarea::placeholder { color: #1a2a32; }
+
+    textarea {
+      resize: none;
+      height: 60px;
+      line-height: 1.5;
+    }
+
+    /* ── Custom dropdown ── */
+    .cdd {
+      position: relative;
+      width: 100%;
+    }
+
+    .cdd-trigger {
+      background: #141c20;
+      border: 1px solid rgba(200,170,100,0.22);
+      border-radius: 10px;
+      color: #d0dce4;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      padding: 10px 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      user-select: none;
+      width: 100%;
+    }
+    .cdd-trigger:hover        { border-color: rgba(200,170,100,0.60); }
+    .cdd.open .cdd-trigger    { border-color: rgba(200,170,100,0.60); box-shadow: 0 0 0 3px rgba(200,170,100,0.12); }
+
+    .cdd-sel-icon  { font-size: 15px; color: #5a8fa8; flex-shrink: 0; }
+    .cdd-sel-label { flex: 1; }
+    .cdd-chevron   {
+      font-size: 13px;
+      color: #4a7080;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .cdd.open .cdd-chevron { transform: rotate(180deg); }
+
+    .cdd-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #141c20;
+      border: 1px solid rgba(200,170,100,0.22);
+      border-radius: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+      display: none;
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 1100;
+    }
+    .cdd.open .cdd-menu { display: block; }
+
+    /* scrollbar */
+    .cdd-menu::-webkit-scrollbar { width: 4px; }
+    .cdd-menu::-webkit-scrollbar-track { background: transparent; }
+    .cdd-menu::-webkit-scrollbar-thumb { background: rgba(180,160,120,0.18); border-radius: 2px; }
+
+    .cdd-item {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      font-size: 14px;
+      gap: 9px;
+      padding: 9px 14px;
+      transition: background 0.1s;
+      color: #8ab0c4;
+    }
+    .cdd-item:hover    { background: rgba(74,127,165,0.18); color: #dde8ee; }
+    .cdd-item.selected { background: rgba(74,127,165,0.15); color: #d0dce4; }
+    .cdd-item .ti      { font-size: 15px; color: #4a7080; flex-shrink: 0; }
+    .cdd-item:hover .ti    { color: #5a8fa8; }
+    .cdd-item.selected .ti { color: #5a8fa8; }
+
+    .cdd-sep { height: 1px; background: rgba(180,160,120,0.18); margin: 3px 0; }
+
+    .cdd-new       { color: #4a7080 !important; font-style: italic; }
+    .cdd-new .ti   { color: #4a7fa5 !important; }
+    .cdd-new:hover { color: #a0a0cc !important; background: rgba(74,127,165,0.15) !important; }
+
+    /* ── New-category inline row ── */
+    .cat-select-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .new-cat-inline {
+      display: none;
+      gap: 6px;
+      align-items: center;
+    }
+    .new-cat-inline.visible { display: flex; }
+    .new-cat-inline input   { flex: 1; min-width: 0; }
+
+    .icon-btn {
+      background: #141c20;
+      border: 1px solid rgba(180,160,120,0.18);
+      border-radius: 8px;
+      color: #4a7080;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      padding: 8px 9px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .icon-btn.confirm:hover { background: #4a7fa5; border-color: #4a7fa5; color: #fff; }
+    .icon-btn.xbtn:hover    { border-color: #993C1D; color: #ff7070; }
+
+    /* ── Buttons ── */
+    .btn {
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 10px 18px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add {
+      background: transparent;
+      border: 1px solid rgba(200,170,100,0.35);
+      color: #7aaabb;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+    }
+    .btn-add:hover {
+      background: rgba(200,170,100,0.07);
+      border-color: rgba(200,170,100,0.65);
+      color: #d0dce4;
+    }
+
+    /* ── Category Filter Row ── */
+    .cat-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .cat-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid rgba(180,160,120,0.18);
+      border-radius: 99px;
+      color: #4a7080;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 13px;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .cat-filter-btn .ti { font-size: 13px; }
+    .cat-filter-btn:hover  { border-color: #4a7fa5; color: #a8ccd8; }
+    .cat-filter-btn.active { background: #1e4a6a; border-color: #4a7fa5; color: #fff; }
+    .pill-count {
+      background: rgba(200,170,100,0.15);
+      color: #c8a86a;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 99px;
+      margin-left: 5px;
+    }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-bar .search-wrap { flex: 1; min-width: 180px; }
+
+    .link-count {
+      color: #3a5a6a;
+      font-size: 13px;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+    /* ── Category Panels ── */
+    .cat-panel {
+      border: 1px solid rgba(200,170,100,0.30);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #141c20;
+      padding: 12px 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .cat-panel.open .cat-header { border-bottom: 1px solid rgba(200,170,100,0.22); }
+    .cat-header:hover { background: #172028; }
+
+    .cat-icon    { font-size: 18px; color: #5a8fa8; flex-shrink: 0; }
+    .cat-name    { font-size: 15px; font-weight: 600; color: #ccdce6; flex: 1; }
+    .cat-badge   {
+      background: rgba(200,170,100,0.15);
+      border: 1px solid rgba(200,170,100,0.30);
+      border-radius: 99px;
+      color: #c8a86a;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 9px;
+      flex-shrink: 0;
+    }
+    .cat-chevron { color: #3a5a6a; font-size: 16px; flex-shrink: 0; }
+
+    .cat-body {
+      background: #111a1e;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+    .cat-panel.open .cat-body { max-height: 2000px; }
+
+    .cat-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px;
+    }
+
+    .cat-empty {
+      text-align: center;
+      padding: 14px 8px;
+      color: #1a2a32;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* ── Card ── */
+    .link-card {
+      border-radius: 10px;
+      padding: 10px 16px;
+      border: 1px solid rgba(200,170,100,0.35);
+      background: var(--pal-bg, rgba(74,127,165,0.08));
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .link-card:hover {
+      border-color: rgba(200,170,100,0.50);
+      background: rgba(200,170,100,0.06);
+    }
+
+    .card-actions {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 12px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .link-card:hover .card-actions { opacity: 1; }
+
+    .action-btn {
+      background: rgba(0,0,0,0.35);
+      border: none;
+      border-radius: 7px;
+      color: #5a8fa8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      line-height: 1;
+      padding: 5px 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .action-btn:hover     { background: rgba(0,0,0,0.55); color: #fff; }
+    .action-btn.del:hover { color: #ff7070; }
+
+    .card-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-right: 88px;
+    }
+
+    .icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--pal-icon, rgba(74,127,165,0.18));
+    }
+    .icon-box img  { width: 16px; height: 16px; object-fit: contain; display: block; }
+    .icon-fallback { font-size: 14px; display: none; color: #5a8fa8; }
+
+    .card-body  { flex: 1; min-width: 0; }
+
+    .card-line1 {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      overflow: hidden;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
+      text-decoration: none;
+      color: #d0dce4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+    .card-title:hover { text-decoration: underline; }
+
+    .card-sep { color: #2a4050; flex-shrink: 0; font-size: 13px; }
+
+    .card-domain {
+      font-family: 'Courier New', Consolas, monospace;
+      font-size: 11px;
+      color: #3a6070;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: #5a8fa8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .card-date {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: #3a6070;
+      white-space: nowrap;
+    }
+
+    /* ── Edit Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal-card {
+      background: #141c20;
+      border: 1px solid rgba(180,160,120,0.22);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-card h2 { font-size: 18px; font-weight: 600; color: #d0dce4; }
+
+    .modal-field { display: flex; flex-direction: column; gap: 6px; }
+    .modal-field label { font-size: 13px; font-weight: 500; color: #4a7080; }
+    .modal-card textarea { height: 80px; }
+
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    .btn-cancel {
+      background: #141c20;
+      border: 1px solid rgba(180,160,120,0.18);
+      color: #4a7080;
+    }
+    .btn-cancel:hover { background: #172028; color: #a8ccd8; }
+    .btn-save  { background: #4a7fa5; color: #fff; }
+    .btn-save:hover { background: #3d6e8f; }
+
+    /* ── Header Actions ── */
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid rgba(200,170,100,0.22);
+      border-radius: 8px;
+      color: #7aaabb;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 12px;
+      transition: all 0.15s;
+    }
+    .header-btn:hover {
+      border-color: rgba(200,170,100,0.55);
+      color: #d0dce4;
+    }
+    .download-btn {
+      border-color: rgba(200,170,100,0.22);
+      color: #7aaabb;
+      text-decoration: none;
+      margin-left: 12px;
+    }
+    .download-btn:hover {
+      border-color: rgba(200,170,100,0.55);
+      color: #d0dce4;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #141c20;
+      border: 1px solid rgba(200,170,100,0.35);
+      border-radius: 8px;
+      color: #c4d4dc;
+      font-size: 13px;
+      padding: 10px 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 2000;
+    }
+    #toast.visible { opacity: 1; }
+
+    /* ── Tooltip ── */
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+    .tooltip {
+      position: absolute;
+      bottom: calc(100% + 4px);
+      right: 0;
+      background: #141c20;
+      border: 1px solid rgba(200,170,100,0.25);
+      border-radius: 8px;
+      color: #7aaabb;
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 7px 11px;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 100;
+    }
+    .tooltip-wrap:hover .tooltip {
+      opacity: 1;
+    }
+
+    /* ── Tagline ── */
+    .site-tagline {
+      font-size: 13px;
+      color: #3a5a6a;
+      font-weight: 400;
+      margin-top: -28px;
+      margin-bottom: 24px;
+      padding-left: 40px;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(200,170,100,0.12);
+      text-align: center;
+      font-size: 13px;
+      color: #3a5a6a;
+    }
+    .site-footer a {
+      color: #4a7fa5;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .site-footer a:hover {
+      color: #c4d4dc;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 72px 24px;
+      color: #1e3a4a;
+    }
+    .empty-state .ti { font-size: 56px; display: block; margin-bottom: 16px; color: #0e2030; }
+    .empty-state p { font-size: 16px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <i class="ti ti-bookmarks"></i>
+    <h1>Link Stash</h1>
+    <div class="header-actions">
+      <div class="tooltip-wrap">
+        <button id="exportBtn" class="header-btn"><i class="ti ti-download"></i> Export</button>
+        <div class="tooltip">Downloads your links as a JSON backup file to your browser's default download folder</div>
+      </div>
+      <div class="tooltip-wrap">
+        <button id="importBtn" class="header-btn"><i class="ti ti-upload"></i> Import</button>
+        <div class="tooltip">Restore links from a backup file</div>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+      <div class="tooltip-wrap">
+        <a id="downloadBtn" class="header-btn download-btn"><i class="ti ti-file-download"></i> Download</a>
+        <div class="tooltip">Get your own copy of Link Stash</div>
+      </div>
+    </div>
+  </header>
+  <p class="site-tagline">Your personal link organizer</p>
+
+  <!-- Add Panel -->
+  <div class="add-panel">
+    <div class="add-row">
+      <input type="url" id="urlInput" style="flex:3" placeholder="https://example.com">
+      <input type="text" id="labelInput" style="flex:2" placeholder="Label (optional)">
+    </div>
+    <div class="add-row">
+      <textarea id="descInput" style="flex:2" placeholder="Description (optional)"></textarea>
+      <div class="cat-select-wrap" style="flex:1.5">
+        <div id="catSelectWrap"></div>
+        <div class="new-cat-inline" id="addNewCatRow">
+          <input type="text" id="addNewCatInput" placeholder="Category name…">
+          <button class="icon-btn confirm" id="addNewCatOk" title="Confirm"><i class="ti ti-check"></i></button>
+          <button class="icon-btn xbtn"   id="addNewCatX"  title="Cancel"><i class="ti ti-x"></i></button>
+        </div>
+      </div>
+      <button class="btn btn-add" id="addBtn"><i class="ti ti-plus"></i> Add</button>
+    </div>
+  </div>
+
+  <!-- Category filter -->
+  <div class="cat-filter-row" id="catFilterRow"></div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="Search links…">
+    </div>
+    <span class="link-count" id="linkCount"></span>
+  </div>
+
+  <!-- Panels -->
+  <div id="linkGrid"></div>
+
+  <footer class="site-footer">
+    Built by <a href="https://teokitten.github.io" target="_blank" rel="noopener">Teo Moldovanu</a>
+  </footer>
+
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay hidden" id="editModal">
+  <div class="modal-card">
+    <h2>Edit Link</h2>
+    <div class="modal-field">
+      <label for="eUrl">URL</label>
+      <input type="url" id="eUrl" placeholder="https://…">
+    </div>
+    <div class="modal-field">
+      <label for="eLabel">Label</label>
+      <input type="text" id="eLabel" placeholder="Label">
+    </div>
+    <div class="modal-field">
+      <label for="eDesc">Description</label>
+      <textarea id="eDesc" placeholder="Description (optional)"></textarea>
+    </div>
+    <div class="modal-field">
+      <label>Category</label>
+      <div id="eCatWrap"></div>
+      <div class="new-cat-inline" id="editNewCatRow">
+        <input type="text" id="editNewCatInput" placeholder="Category name…">
+        <button class="icon-btn confirm" id="editNewCatOk" title="Confirm"><i class="ti ti-check"></i></button>
+        <button class="icon-btn xbtn"   id="editNewCatX"  title="Cancel"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" id="cancelEdit">Cancel</button>
+      <button class="btn btn-save"   id="saveEdit">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORE     = 'link_stash_links';
+const CAT_STORE = 'link_stash_custom_cats';
+
+const CATS = [
+  { id: 'work',          label: 'Work',          icon: 'ti-briefcase'  },
+  { id: 'research',      label: 'Research',       icon: 'ti-microscope' },
+  { id: 'tools',         label: 'Tools',          icon: 'ti-tool'       },
+  { id: 'personal',      label: 'Personal',       icon: 'ti-home'       },
+  { id: 'uncategorized', label: 'Uncategorized',  icon: 'ti-folder'     },
+];
+
+const PAL = [
+  { bg:'#0f1c24', border:'rgba(200,170,100,0.28)', title:'#a8bec8', muted:'#4a6878', icon:'#162430' },
+  { bg:'#101e22', border:'rgba(200,170,100,0.28)', title:'#a4bcca', muted:'#486474', icon:'#142028' },
+  { bg:'#0e1c20', border:'rgba(200,170,100,0.28)', title:'#aabec6', muted:'#4c6870', icon:'#121e26' },
+  { bg:'#101a22', border:'rgba(200,170,100,0.28)', title:'#a6bcc6', muted:'#4a6270', icon:'#14202c' },
+  { bg:'#0f1e20', border:'rgba(200,170,100,0.28)', title:'#a8c0be', muted:'#4a6a68', icon:'#122022' },
+  { bg:'#111c1e', border:'rgba(200,170,100,0.28)', title:'#a6bcbc', muted:'#486868', icon:'#142022' },
+  { bg:'#0e1c24', border:'rgba(200,170,100,0.28)', title:'#a4bcc8', muted:'#486678', icon:'#12202e' },
+];
+
+function palFor(url) {
+  let h = 5381;
+  const s = url || '';
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h) ^ s.charCodeAt(i);
+  return PAL[(h >>> 0) % PAL.length];
+}
+
+// ── Custom categories ──
+let customCats = [];
+
+function loadCustomCats() {
+  try { customCats = JSON.parse(localStorage.getItem(CAT_STORE)) || []; }
+  catch { customCats = []; }
+}
+
+function saveCustomCats() {
+  localStorage.setItem(CAT_STORE, JSON.stringify(customCats));
+}
+
+function allCats() { return [...CATS, ...customCats]; }
+
+function makeCatId(label) {
+  const base = label.toLowerCase().trim()
+    .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'custom';
+  let id = base, n = 1;
+  while (allCats().find(c => c.id === id)) id = `${base}-${++n}`;
+  return id;
+}
+
+function createCat(label) {
+  label = (label || '').trim();
+  if (!label) return null;
+  const existing = allCats().find(c => c.label.toLowerCase() === label.toLowerCase());
+  if (existing) return existing.id;
+  const id = makeCatId(label);
+  customCats.push({ id, label, icon: 'ti-folder' });
+  saveCustomCats();
+  return id;
+}
+
+// ── Helpers ──
+function domain(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); }
+  catch { return url; }
+}
+
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+  catch { return ''; }
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function safeHref(url) {
+  return /^https?:\/\//i.test(url) ? esc(url) : '#';
+}
+
+// ── Custom dropdown ──
+// Tracks the currently open dropdown's close function
+let _openClose = null;
+
+function makeCatDropdown(container, initialId, onSelect) {
+  let currentVal = initialId;
+
+  container.classList.add('cdd');
+
+  const trigger = document.createElement('div');
+  trigger.className = 'cdd-trigger';
+
+  const menu = document.createElement('div');
+  menu.className = 'cdd-menu';
+
+  container.appendChild(trigger);
+  container.appendChild(menu);
+
+  function catForId(id) {
+    return allCats().find(c => c.id === id) || { id, label: id, icon: 'ti-folder' };
+  }
+
+  function buildTrigger() {
+    const cat = catForId(currentVal);
+    trigger.innerHTML =
+      `<i class="ti ${cat.icon} cdd-sel-icon"></i>` +
+      `<span class="cdd-sel-label">${esc(cat.label)}</span>` +
+      `<i class="ti ti-chevron-down cdd-chevron"></i>`;
+  }
+
+  function buildMenu() {
+    menu.innerHTML = '';
+    allCats().forEach(cat => {
+      const item = document.createElement('div');
+      item.className = 'cdd-item' + (cat.id === currentVal ? ' selected' : '');
+      item.innerHTML = `<i class="ti ${cat.icon}"></i><span>${esc(cat.label)}</span>`;
+      item.addEventListener('click', () => {
+        currentVal = cat.id;
+        buildTrigger();
+        closeMenu();
+        onSelect(cat.id);
+      });
+      menu.appendChild(item);
+    });
+
+    const sep = document.createElement('div');
+    sep.className = 'cdd-sep';
+    menu.appendChild(sep);
+
+    const newItem = document.createElement('div');
+    newItem.className = 'cdd-item cdd-new';
+    newItem.innerHTML = `<i class="ti ti-plus"></i><span>New category…</span>`;
+    newItem.addEventListener('click', () => {
+      closeMenu();
+      onSelect('__new__');
+    });
+    menu.appendChild(newItem);
+  }
+
+  function openMenu() {
+    if (_openClose && _openClose !== closeMenu) _openClose();
+    buildMenu();
+    container.classList.add('open');
+    _openClose = closeMenu;
+  }
+
+  function closeMenu() {
+    container.classList.remove('open');
+    if (_openClose === closeMenu) _openClose = null;
+  }
+
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    container.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  document.addEventListener('click', e => {
+    if (!container.contains(e.target)) closeMenu();
+  });
+
+  buildTrigger();
+
+  return {
+    get value() { return currentVal; },
+    set value(id) {
+      currentVal = id;
+      buildTrigger();
+    },
+    refresh(id) {
+      if (id !== undefined) currentVal = id;
+      buildTrigger();
+      if (container.classList.contains('open')) buildMenu();
+    },
+  };
+}
+
+// ── State ──
+let links     = [];
+let activeCat = null;
+let editIdx   = null;
+const panelCollapsed = {};
+
+// Dropdown handles — set after DOM ready
+let addDd, editDd;
+
+function load() {
+  // one-time migration from old keys
+  const oldLinks = localStorage.getItem('url_keeper_links');
+  const oldCats  = localStorage.getItem('url_keeper_custom_cats');
+  if (oldLinks  && !localStorage.getItem('link_stash_links'))      localStorage.setItem('link_stash_links',       oldLinks);
+  if (oldCats   && !localStorage.getItem('link_stash_custom_cats')) localStorage.setItem('link_stash_custom_cats', oldCats);
+
+  loadCustomCats();
+  try { links = JSON.parse(localStorage.getItem(STORE)) || []; }
+  catch { links = []; }
+  links.forEach(l => {
+    if (!l.category) l.category = 'uncategorized';
+    if (!allCats().find(c => c.id === l.category)) {
+      const label = l.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      customCats.push({ id: l.category, label, icon: 'ti-folder' });
+    }
+  });
+}
+
+function save() { localStorage.setItem(STORE, JSON.stringify(links)); }
+
+// ── Filtering ──
+function visible() {
+  if (activeCat === null) return [];
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return links.filter(l => {
+    if (activeCat !== '__all__' && (l.category || 'uncategorized') !== activeCat) return false;
+    if (!q) return true;
+    return [l.url, l.label, l.desc].some(v => (v||'').toLowerCase().includes(q));
+  });
+}
+
+// ── Render ──
+function render() {
+  renderCatFilter();
+  const shown = visible();
+  renderPanels(shown);
+  document.getElementById('linkCount').textContent =
+    activeCat === null ? '' : `${shown.length} link${shown.length !== 1 ? 's' : ''}`;
+}
+
+function renderCatFilter() {
+  const el = document.getElementById('catFilterRow');
+  el.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-filter-btn' + (activeCat === '__all__' ? ' active' : '');
+  allBtn.innerHTML = `All <span class="pill-count">${links.length}</span>`;
+  allBtn.addEventListener('click', () => {
+    activeCat = '__all__';
+    allCats().forEach(c => { panelCollapsed[c.id] = false; });
+    render();
+  });
+  el.appendChild(allBtn);
+
+  allCats().forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-filter-btn' + (activeCat === cat.id ? ' active' : '');
+    const catCount = links.filter(l => (l.category||'uncategorized') === cat.id).length;
+    btn.innerHTML = `<i class="ti ${cat.icon}"></i>${esc(cat.label)}<span class="pill-count">${catCount}</span>`;
+    btn.addEventListener('click', () => {
+      if (activeCat === cat.id) {
+        activeCat = null;
+      } else {
+        activeCat = cat.id;
+        panelCollapsed[cat.id] = false;
+      }
+      render();
+    });
+    el.appendChild(btn);
+  });
+}
+
+function renderPanels(shown) {
+  const grid = document.getElementById('linkGrid');
+  grid.innerHTML = '';
+
+  if (activeCat === null) {
+    const p = document.createElement('p');
+    p.style.cssText = 'text-align:center;font-size:14px;color:#3a5a6a;padding:40px 0;';
+    p.textContent = 'Select a category above to view your links.';
+    grid.appendChild(p);
+    return;
+  }
+
+  if (links.length === 0) {
+    const d = document.createElement('div');
+    d.className = 'empty-state';
+    d.innerHTML = '<i class="ti ti-bookmarks"></i><p>No links yet — add your first one above.</p>';
+    grid.appendChild(d);
+    return;
+  }
+
+  allCats().forEach(cat => {
+    if (!(cat.id in panelCollapsed)) {
+      panelCollapsed[cat.id] = !links.some(l => (l.category||'uncategorized') === cat.id);
+    }
+  });
+
+  const catsToShow = activeCat === '__all__' ? allCats() : allCats().filter(c => c.id === activeCat);
+
+  catsToShow.forEach(cat => {
+    const catLinks = shown.filter(l => (l.category||'uncategorized') === cat.id);
+    const isOpen   = !panelCollapsed[cat.id];
+
+    const section = document.createElement('section');
+    section.className = 'cat-panel' + (isOpen ? ' open' : '');
+
+    section.innerHTML = `
+      <div class="cat-header">
+        <i class="ti ${cat.icon} cat-icon"></i>
+        <span class="cat-name">${esc(cat.label)}</span>
+        <i class="ti ${isOpen ? 'ti-chevron-up' : 'ti-chevron-down'} cat-chevron"></i>
+      </div>
+      <div class="cat-body">
+        <div class="cat-cards"></div>
+      </div>`;
+
+    section.querySelector('.cat-header').addEventListener('click', () => {
+      panelCollapsed[cat.id] = !panelCollapsed[cat.id];
+      section.classList.toggle('open');
+      const chev = section.querySelector('.cat-chevron');
+      chev.className = `ti ${panelCollapsed[cat.id] ? 'ti-chevron-down' : 'ti-chevron-up'} cat-chevron`;
+    });
+
+    const cardsWrap = section.querySelector('.cat-cards');
+    if (catLinks.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'cat-empty';
+      empty.textContent = 'No links in this category';
+      cardsWrap.appendChild(empty);
+    } else {
+      catLinks.forEach(link => cardsWrap.appendChild(buildCard(link)));
+    }
+
+    grid.appendChild(section);
+  });
+}
+
+function buildCard(link) {
+  const idx = links.indexOf(link);
+  const dm  = domain(link.url||'');
+  const lbl = link.label || dm;
+  const fav = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(dm)}&sz=32`;
+
+  const card = document.createElement('div');
+  card.className = 'link-card';
+
+  const pal = palFor(link.url);
+  card.style.setProperty('--pal-bg', pal.bg);
+  card.style.setProperty('--pal-icon', pal.icon);
+
+  card.innerHTML = `
+    <div class="card-actions">
+      <button class="action-btn copy" title="Copy URL"><i class="ti ti-copy"></i></button>
+      <button class="action-btn edt"  title="Edit"><i class="ti ti-edit"></i></button>
+      <button class="action-btn del"  title="Delete"><i class="ti ti-trash"></i></button>
+    </div>
+    <div class="card-row">
+      <div class="icon-box">
+        <img src="${fav}" alt=""
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <i class="ti ti-link icon-fallback"></i>
+      </div>
+      <div class="card-body">
+        <div class="card-line1">
+          <a class="card-title" href="${safeHref(link.url)}" target="_blank" rel="noopener noreferrer">${esc(lbl)}</a>
+          <span class="card-sep">·</span>
+          <span class="card-domain">${esc(dm)}</span>
+        </div>
+        ${link.desc ? `<div class="card-desc">${esc(link.desc)}</div>` : ''}
+      </div>
+      <div class="card-right">
+        <div class="card-date"><i class="ti ti-calendar"></i>${fmtDate(link.added)}</div>
+      </div>
+    </div>`;
+
+  card.querySelector('.copy').addEventListener('click', e => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    navigator.clipboard.writeText(link.url).catch(()=>{});
+    btn.innerHTML = '<i class="ti ti-check"></i>';
+    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy"></i>'; }, 1500);
+  });
+
+  card.querySelector('.edt').addEventListener('click', e => {
+    e.stopPropagation();
+    openEdit(idx);
+  });
+
+  card.querySelector('.del').addEventListener('click', e => {
+    e.stopPropagation();
+    if (confirm(`Delete "${lbl}"?`)) {
+      links.splice(idx, 1);
+      save();
+      render();
+    }
+  });
+
+  card.addEventListener('click', e => {
+    if (e.target.closest('.card-actions')) return;
+    window.open(link.url, '_blank', 'noopener,noreferrer');
+  });
+
+  return card;
+}
+
+// ── Add panel: new-category flow ──
+const addNewCatRow   = document.getElementById('addNewCatRow');
+const addNewCatInput = document.getElementById('addNewCatInput');
+
+function confirmAddNewCat() {
+  const id = createCat(addNewCatInput.value);
+  if (!id) { addNewCatInput.focus(); return; }
+  addNewCatInput.value = '';
+  addNewCatRow.classList.remove('visible');
+  addDd.refresh(id);
+  render();
+}
+
+function cancelAddNewCat() {
+  addNewCatInput.value = '';
+  addNewCatRow.classList.remove('visible');
+  addDd.refresh(CATS[0].id);
+}
+
+document.getElementById('addNewCatOk').addEventListener('click', confirmAddNewCat);
+document.getElementById('addNewCatX').addEventListener('click', cancelAddNewCat);
+addNewCatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter')  { e.preventDefault(); confirmAddNewCat(); }
+  if (e.key === 'Escape') cancelAddNewCat();
+});
+
+// ── Add ──
+function normalise(url) {
+  url = url.trim();
+  if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+  return url;
+}
+
+function doAdd() {
+  const url = normalise(document.getElementById('urlInput').value);
+  if (!url) return;
+
+  if (addNewCatRow.classList.contains('visible')) {
+    if (addNewCatInput.value.trim()) confirmAddNewCat();
+    else { addNewCatInput.focus(); return; }
+  }
+
+  const category = addDd.value;
+  if (!category || category === '__new__') return;
+
+  links.unshift({
+    url,
+    label:    document.getElementById('labelInput').value.trim(),
+    desc:     document.getElementById('descInput').value.trim(),
+    category,
+    added:    new Date().toISOString(),
+  });
+  save();
+  panelCollapsed[category] = false;
+  ['urlInput','labelInput','descInput'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  addDd.refresh(CATS[0].id);
+  document.getElementById('urlInput').focus();
+  render();
+}
+
+document.getElementById('addBtn').addEventListener('click', doAdd);
+document.getElementById('urlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doAdd();
+});
+document.getElementById('searchInput').addEventListener('input', render);
+
+// ── Edit modal: new-category flow ──
+const editNewCatRow   = document.getElementById('editNewCatRow');
+const editNewCatInput = document.getElementById('editNewCatInput');
+
+function confirmEditNewCat() {
+  const id = createCat(editNewCatInput.value);
+  if (!id) { editNewCatInput.focus(); return; }
+  editNewCatInput.value = '';
+  editNewCatRow.classList.remove('visible');
+  editDd.refresh(id);
+}
+
+function cancelEditNewCat() {
+  editNewCatInput.value = '';
+  editNewCatRow.classList.remove('visible');
+  const fallback = (editIdx !== null && links[editIdx]) ? (links[editIdx].category || 'uncategorized') : 'uncategorized';
+  editDd.refresh(fallback);
+}
+
+document.getElementById('editNewCatOk').addEventListener('click', confirmEditNewCat);
+document.getElementById('editNewCatX').addEventListener('click', cancelEditNewCat);
+editNewCatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter')  { e.preventDefault(); confirmEditNewCat(); }
+  if (e.key === 'Escape') cancelEditNewCat();
+});
+
+// ── Edit Modal ──
+function openEdit(idx) {
+  editIdx = idx;
+  const l = links[idx];
+  document.getElementById('eUrl').value   = l.url   || '';
+  document.getElementById('eLabel').value = l.label || '';
+  document.getElementById('eDesc').value  = l.desc  || '';
+  editDd.refresh(l.category || 'uncategorized');
+  editNewCatRow.classList.remove('visible');
+  editNewCatInput.value = '';
+  document.getElementById('editModal').classList.remove('hidden');
+  document.getElementById('eUrl').focus();
+}
+
+function closeEdit() {
+  document.getElementById('editModal').classList.add('hidden');
+  editNewCatRow.classList.remove('visible');
+  editNewCatInput.value = '';
+  editIdx = null;
+}
+
+document.getElementById('cancelEdit').addEventListener('click', closeEdit);
+
+document.getElementById('editModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('editModal')) closeEdit();
+});
+
+document.getElementById('saveEdit').addEventListener('click', () => {
+  if (editIdx === null) return;
+  const url = normalise(document.getElementById('eUrl').value);
+  if (!url) return;
+
+  if (editNewCatRow.classList.contains('visible')) {
+    if (editNewCatInput.value.trim()) confirmEditNewCat();
+    else { editNewCatInput.focus(); return; }
+  }
+
+  const category = editDd.value;
+  if (!category || category === '__new__') return;
+
+  links[editIdx] = {
+    ...links[editIdx],
+    url,
+    label:    document.getElementById('eLabel').value.trim(),
+    desc:     document.getElementById('eDesc').value.trim(),
+    category,
+  };
+  save();
+  closeEdit();
+  render();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeEdit();
+});
+
+// ── Init ──
+load();
+
+addDd  = makeCatDropdown(
+  document.getElementById('catSelectWrap'),
+  CATS[0].id,
+  val => {
+    if (val === '__new__') {
+      addNewCatRow.classList.add('visible');
+      addNewCatInput.focus();
+    }
+  }
+);
+
+editDd = makeCatDropdown(
+  document.getElementById('eCatWrap'),
+  'uncategorized',
+  val => {
+    if (val === '__new__') {
+      editNewCatRow.classList.add('visible');
+      editNewCatInput.focus();
+    } else {
+      editNewCatRow.classList.remove('visible');
+      editNewCatInput.value = '';
+    }
+  }
+);
+
+render();
+
+// ── Export ──
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const data = {
+    version: 1,
+    exported: new Date().toISOString(),
+    links: links,
+    customCats: customCats,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `link-stash-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ── Import ──
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data.links)) throw new Error('Invalid file');
+      links = data.links;
+      customCats = Array.isArray(data.customCats) ? data.customCats : [];
+      save();
+      saveCustomCats();
+      e.target.value = '';
+      render();
+      showToast('Imported successfully');
+    } catch {
+      alert('Could not read file – make sure it is a valid Link Stash export.');
+    }
+  };
+  reader.readAsText(file);
+});
+
+(function() {
+  const btn = document.getElementById('downloadBtn');
+  fetch(window.location.href)
+    .then(r => r.text())
+    .then(html => {
+      const blob = new Blob([html], { type: 'text/html' });
+      btn.href = URL.createObjectURL(blob);
+      btn.download = 'link-stash.html';
+    })
+    .catch(() => {
+      btn.href = window.location.href;
+      btn.download = 'link-stash.html';
+    });
+})();
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 2500);
+}
+</script>
+
+<div id="toast"></div>
+</body>
+</html>
