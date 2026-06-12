@@ -1,5 +1,7 @@
 # Link Stash
 
+![Link Stash screenshot](screenshot.png)
+
 **One place for all your links. Find them fast, copy them instantly.**
 
 If you constantly juggle URLs across browser tabs, notes apps, and scattered bookmarks – Link Stash is a simpler alternative.
