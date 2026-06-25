@@ -746,9 +746,9 @@ function palFor(url) {
 // ── Custom categories ──
 let customCats = [];
 
-function loadCustomCats() {
-  try { customCats = JSON.parse(localStorage.getItem(CAT_STORE)) || []; }
-  catch { customCats = []; }
+function loadCats() {
+  const raw = localStorage.getItem(CAT_STORE);
+  customCats = raw ? JSON.parse(raw) : [];
 }
 
 function saveCustomCats() {
@@ -900,23 +900,11 @@ const panelCollapsed = {};
 // Dropdown handles — set after DOM ready
 let addDd, editDd;
 
-function load() {
-  // one-time migration from old keys
-  const oldLinks = localStorage.getItem('url_keeper_links');
-  const oldCats  = localStorage.getItem('url_keeper_custom_cats');
-  if (oldLinks  && !localStorage.getItem('link_stash_links'))      localStorage.setItem('link_stash_links',       oldLinks);
-  if (oldCats   && !localStorage.getItem('link_stash_custom_cats')) localStorage.setItem('link_stash_custom_cats', oldCats);
-
-  loadCustomCats();
-  try { links = JSON.parse(localStorage.getItem(STORE)) || []; }
-  catch { links = []; }
-  links.forEach(l => {
-    if (!l.category) l.category = 'uncategorized';
-    if (!allCats().find(c => c.id === l.category)) {
-      const label = l.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      customCats.push({ id: l.category, label, icon: 'ti-folder' });
-    }
-  });
+async function load() {
+  const raw = localStorage.getItem(STORE);
+  links = raw ? JSON.parse(raw) : [];
+  loadCats();
+  render();
 }
 
 function save() { localStorage.setItem(STORE, JSON.stringify(links)); }
